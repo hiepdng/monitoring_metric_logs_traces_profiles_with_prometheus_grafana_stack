@@ -41,9 +41,9 @@ To view specific container webpages:
 - Alertmanager: http://localhost:9093/
 
 **View Grafana Drilldown Metrics, Logs, Traces and Profiles:**  
-To view traces page:  
-- goto http://localhost:3000/  
-- Click on `Drilldown` -> **Metrics**, **Logs**, **Traces** and **Profiles**  
+To view a corresponding page:  
+- Go to http://localhost:3000/  
+- Click on `Drilldown` -> **Metrics**, **Logs**, **Traces** or **Profiles**  
 
 
 
