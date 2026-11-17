@@ -1,12 +1,11 @@
 ## Monitoring Metrics, Logs, Traces, Profiles with Prometheus and Grafana stack
 
 
-Below is the complete setup how to use Grafana Alloy, Grafana Tempo, Grafana xk6-client-tracing and Grafana to creates a complete, end-to-end distributed tracing stack to monitor, collect, store, and visualize the journey of requests across microservices.   
+Below is the complete setup for using the Prometheus and Grafana stack to monitor metrics, logs, traces, and profiles. All relevant Docker images are used to demonstrate this setup.  
 
-To simplify the setup, I use docker images to demotrate traces in Grafana webpage.  
 
 **Setup**  
-Run the below commands to download the demo repository and run Alloy, Tempo and Grafana.  
+Run the below commands to download the demo repository and run Prometheus and Grafana stack.  
 ```bash
 #Downloading the repository
 git clone git@github.com:hiepdng/monitoring_metric_logs_traces_profiles_with_prometheus_grafana_stack.git
