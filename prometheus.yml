@@ -17,4 +17,4 @@ scrape_configs:
       - targets: [ 'tempo:3200' ]
   - job_name: 'loki'
     static_configs:
-      - targets: [ 'lokio:3100' ]
+      - targets: [ 'loki:3100' ]
