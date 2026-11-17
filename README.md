@@ -9,16 +9,22 @@ To simplify the setup, I use docker images to demotrate traces in Grafana webpag
 Run the below commands to download the demo repository and run Alloy, Tempo and Grafana.  
 ```bash
 #Downloading the repository
-git clone git@github.com:hiepdng/monitoring_traces_with_alloy_tempo_grafana.git
+git clone git@github.com:hiepdng/monitoring_metric_logs_traces_profiles_with_prometheus_grafana_stack.git
 
 #Creating volumes
-cd monitoring_traces_with_alloy_tempo_grafana
+cd monitoring_metric_logs_traces_profiles_with_prometheus_grafana_stack
+mkdir prometheus_data
+sudo chown -R nobody:nogroup prometheus_data
 mkdir grafana_data
 sudo chown -R 472:472 grafana_data
+mkdir loki_data
+sudo chown -R 10001:10001 loki_data
 mkdir alloy_data
 sudo chown -R 473:473 alloy_data
 mkdir tempo_data
 sudo chown -R 10001:10001 tempo_data
+mkdir pyroscope_data
+sudo chown -R 10001:10001 pyroscope_data
 
 #Running containers
 docker compose up -d
