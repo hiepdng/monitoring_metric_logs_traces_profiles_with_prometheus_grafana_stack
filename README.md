@@ -43,9 +43,13 @@ To view specific container webpages:
 **View Grafana Drilldown Metrics, Logs, Traces and Profiles:**  
 To view a corresponding page:  
 - Go to http://localhost:3000/  
-- Click on `Drilldown` -> **Metrics**, **Logs**, **Traces** or **Profiles**  
-
-
+- Click on **Drilldown** ➔ **Metrics**, **Logs**, **Traces** or **Profiles**  
+- Note:
+  - **Metrics** requires **Prometheus** data source.  
+  - **Logs** requires **Loki** data source.  
+  - **Traces** requires **Tempo** data source.  
+  - **Profiles** required **Pyroscope** data source.
+  All of the required data sources are included in the grafana-datasources.yaml file.  If a data source is missing or if you want to modify data source options,  click on **Connections**➔**Data sources**➔**Add new data source** and enter properly options.  
 
 
 
