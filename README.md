@@ -49,7 +49,15 @@ To view a corresponding page:
   - **Logs** requires **Loki** data source.  
   - **Traces** requires **Tempo** data source.  
   - **Profiles** required **Pyroscope** data source.
+  
   All of the required data sources are included in the grafana-datasources.yaml file.  If a data source is missing or if you want to modify data source options,  click on **Connections**➔**Data sources**➔**Add new data source** and enter properly options.  
 
+**Import pre-built Grafana dashboard:**  
+Instead of building my own custom dashboard, I use a pre-built dashboard (ID = 1800) from https://grafana.com/grafana/dashboards/. This dashboard is for node-exporter (host computer) metrics.  
+- Go to Grafana web http://localhost:3000/
+- Click on **Dashboard** ->**new** ->**Import**
+- Enter **1860** in the ID slot
+- Click **Load** ->**Import**  
+Now you can view all the plots that represent the metrics on the Grafana dashboard.  
 
 
