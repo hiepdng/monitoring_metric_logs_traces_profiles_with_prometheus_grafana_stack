@@ -1,0 +1,117 @@
+networks:
+  monitoring:
+    driver: bridge
+
+services:
+  prometheus:
+    image: prom/prometheus:v3.15.1
+    container_name: prometheus
+    restart: unless-stopped
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./alerts.yml:/etc/prometheus/alerts.yml
+      - ./prometheus_data:/prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=15d
+      - --web.enable-lifecycle
+      - --web.enable-remote-write-receiver
+      - --enable-feature=exemplar-storage
+      - --enable-feature=native-histograms
+    ports:
+      - 9090:9090
+
+  node_exporter:
+    image: prom/node-exporter:v1.12.1
+    container_name: node_exporter
+    restart: unless-stopped
+    volumes:
+      - /:/rootfs:ro,rslave
+    command:
+      - --path.rootfs=/rootfs
+      - --collector.systemd
+      - --collector.processes
+      - --collector.interrupts
+      - --collector.tcpstat
+    ports:
+      - 9100:9100
+
+  grafana:
+    image: grafana/grafana-enterprise:13.0.12-ubuntu
+    container_name: grafana
+    restart: unless-stopped
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_AUTH_DISABLE_LOGIN_FORM=true
+      - GF_FEATURE_TOGGLES_ENABLE=traceqlEditor
+      - GF_INSTALL_PLUGINS=grafana-exploretraces-app  ## plugin...
+    volumes:
+      - ./grafana_data:/var/lib/grafana
+      - ./grafana-datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
+    ports:
+      - 3000:3000
+
+  loki:
+    image: grafana/loki:3.2.0
+    container_name: loki
+    restart: unless-stopped
+    volumes:
+      - ./loki-config.yaml:/etc/loki/local-config.yaml:ro
+      - ./loki_data:/loki
+    command:
+      - -config.file=/etc/loki/local-config.yaml
+      - -config.expand-env=true
+    ports:
+      - 3100:3100
+
+  alloy:
+    image: grafana/alloy:v1.21.3
+    container_name: alloy
+    restart: unless-stopped
+    volumes:
+      - ./config.alloy:/etc/alloy/config.alloy:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./alloy_data:/var/lib/alloy/data
+      - /var/log:/var/log:ro
+    command:
+      - run
+      - /etc/alloy/config.alloy
+      - --server.http.listen-addr=0.0.0.0:12345
+      - --storage.path=/var/lib/alloy/data
+    ports:
+      - 12345:12345
+      - 4319:4319
+
+  tempo:
+    image: grafana/tempo:2.10.4
+    container_name: tempo
+    restart: unless-stopped
+    volumes:
+      - ./tempo.yaml:/etc/tempo.yaml
+      - ./tempo_data:/var/tempo
+    command: ["-config.file=/etc/tempo.yaml"]
+    ports:
+      # Tempo API and query frontend
+      - "3200:3200"
+      # OpenTelemetry gRPC
+      - "4317:4317"
+
+  # Generate fake traces...
+  k6-tracing:
+    image: ghcr.io/grafana/xk6-client-tracing:v0.0.7
+    environment:
+      - ENDPOINT=alloy:4317
+    restart: always
+    depends_on:
+      - tempo
+      - alloy
+
+  pyroscope:
+    image: grafana/pyroscope:latest
+    container_name: pyroscope
+    ports:
+      - "4040:4040"
+    volumes:
+      - ./pyroscope_data:/data

@@ -1,0 +1,64 @@
+groups:
+  - name: "Security"
+    rules:
+      # CPU
+      - alert: HighCPUUsage
+        # Triggers when average non-idle CPU usage exceeds 85% across all cores.
+        expr: (100 - avg by(instance)(rate(node_cpu_seconds_total{mode="idle"}[5m]) * 100)) > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage on {{ $labels.instance }}"
+ 
+      # Memory
+      - alert: HighMemoryUsage
+        # Triggers when available memory drops below 15% of total memory.
+        expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes)
+              / node_memory_MemTotal_bytes > 0.85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage on {{ $labels.instance }}"
+ 
+      # Sustained disk activity
+      - alert: DiskIOSaturation
+        # Triggers when disk spends more than 80% of time handling I/O operations.
+        expr: rate(node_disk_io_time_seconds_total[5m]) > 0.80
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Sustained disk activity on {{ $labels.instance }}"
+ 
+      # Disk Fullness
+      - alert: DiskSpaceLow
+        # Triggers when available disk space falls below 10% on any real filesystem.
+        expr: node_filesystem_avail_bytes{fstype!~"tmpfs|overlay"}
+              / node_filesystem_size_bytes{fstype!~"tmpfs|overlay"} < 0.10
+        for: 10m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Low disk space on {{ $labels.instance }}"
+
+      # Network activiry
+      - alert: NetworkReceive
+        # Triggers when netwwork receive > 80 bytes/sec
+        expr: rate(node_network_receive_bytes_total{device="eth0"}[5m]) > 120
+        for: 5s
+        labels:
+          severity: warning
+        annotations:
+          summary: "Network receive on {{ $labels.instance }}"
+
+      # Network activiry
+      - alert: NetworkTransmit
+        # Triggers when netwwork transmit > 1500 bytes/sec
+        expr: rate(node_network_transmit_bytes_total{device="eth0"}[5m]) > 1500
+        for: 5s
+        labels:
+          severity: warning
+        annotations:
+          summary: "Network transmit on {{ $labels.instance }}"

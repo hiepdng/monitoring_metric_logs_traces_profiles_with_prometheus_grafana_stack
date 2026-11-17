@@ -1,0 +1,101 @@
+logging {
+  level  = "info"
+  format = "logfmt"
+}
+
+// Collect containers logs
+discovery.docker "local_containers" {
+  host = "unix:///var/run/docker.sock"
+}
+discovery.relabel "docker_logs" {
+  targets = discovery.docker.local_containers.targets
+  rule {
+    source_labels = ["__meta_docker_container_name"]
+    regex         = "/(.*)"
+    target_label  = "container"
+  }
+}
+loki.source.docker "container_logs" {
+  host       = "unix:///var/run/docker.sock"
+  targets    = discovery.relabel.docker_logs.output
+  forward_to = [loki.write.local_loki.receiver]
+}
+
+// Collect certain log files on the host
+local.file_match "host_logs" {
+  path_targets = [
+    {__path__ = "/var/log/**/*.log"},
+    {__path__ = "/var/log/syslog", "job" = "syslog"},
+    {__path__ = "/var/log/auth.log", "job" = "auth"},
+  ]
+  sync_period = "5s"
+
+}
+loki.source.file "local_files" {
+  targets    = local.file_match.host_logs.targets
+  forward_to = [loki.write.local_loki.receiver]
+}
+
+// Collect systemd logs on the host
+// 1. Read systemd journal logs
+loki.source.journal "system" {
+  max_age    = "24h"
+  forward_to = [loki.write.local_loki.receiver]
+}
+
+
+// Send the telemetry data to the Loki endpoint
+loki.write "local_loki" {
+  endpoint {
+    url = "http://loki:3100/loki/api/v1/push"
+    batch_wait = "2s"
+    batch_size = "50MiB"
+  }
+}
+
+// For Tempo traces
+otelcol.receiver.otlp "otlp_receiver" {
+  grpc {
+    endpoint = "0.0.0.0:4317"
+  }
+  http {
+    endpoint = "0.0.0.0:4318"
+  }
+  output {
+    traces = [otelcol.exporter.otlp.grafanacloud.input,]
+  }
+}
+otelcol.exporter.otlp "grafanacloud" {
+  client {
+    endpoint = "tempo:4317"
+    tls {
+      insecure = true
+    }
+  }
+}
+
+// For Pyroscope Profiles
+pyroscope.scrape "default" {
+  targets = [
+    {"__address__" = "my-app:8080", "service_name" = "my-app"},
+  ]
+  forward_to = [pyroscope.write.default.receiver]
+}
+// 1. Listen for incoming SDK profiles
+pyroscope.receive_http "default" {
+  http {
+    listen_address = "0.0.0.0"
+    listen_port    = 9999
+  }
+  forward_to = [pyroscope.write.default.receiver]
+}
+// Forward profiles to Pyroscope
+pyroscope.write "default" {
+  endpoint {
+    url = "http://pyroscope:4040"
+  }
+}
+
+
+
+
