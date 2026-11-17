@@ -2,7 +2,7 @@
 
 
 Below is the complete setup for using the Prometheus and Grafana stack to monitor metrics, logs, traces, and profiles. All relevant Docker images are used to demonstrate this setup.  
-
+<br>
 
 **Setup**  
 Run the below commands to download the demo repository and run Prometheus and Grafana stack.  
@@ -28,6 +28,8 @@ sudo chown -R 10001:10001 pyroscope_data
 #Running containers
 docker compose up -d
 ```
+<br>
+
 **Access Grafana web:**  
 Go to http://localhost:3000/ to access your local Grafana webpage and monitor Drilldown Metrics, Logs, Traces and Profiles.  
 
@@ -39,18 +41,20 @@ To view specific container webpages:
 - Tempo: http://localhost:3200/ready or http://localhost:3200/metrics
 - Pyroscope: http://localhost:4040/
 - Alertmanager: http://localhost:9093/
+<br>
 
 **View Grafana Drilldown Metrics, Logs, Traces and Profiles:**  
-To view a corresponding page:  
-- Go to http://localhost:3000/  
-- Click on **Drilldown** ➔ **Metrics**, **Logs**, **Traces** or **Profiles**  
+To view a corresponding page:
+- Go to http://localhost:3000/
+- Click on **Drilldown** ➔ **Metrics**, **Logs**, **Traces** or **Profiles**
 - Note:
-  - **Metrics** requires **Prometheus** data source.  
-  - **Logs** requires **Loki** data source.  
-  - **Traces** requires **Tempo** data source.  
+  - **Metrics** requires **Prometheus** data source.
+  - **Logs** requires **Loki** data source.
+  - **Traces** requires **Tempo** data source.
   - **Profiles** required **Pyroscope** data source.
   
   All of the required data sources are included in the grafana-datasources.yaml file.  If a data source is missing or if you want to modify data source options,  click on **Connections**➔**Data sources**➔**Add new data source** and enter properly options.  
+<br>
 
 **Import pre-built Grafana dashboard:**  
 Instead of building my own custom dashboard, I use a pre-built dashboard (ID = 1800) from https://grafana.com/grafana/dashboards/. This dashboard is for node-exporter (host computer) metrics.  
